@@ -1,6 +1,7 @@
 const canvas = document.querySelector("canvas");
 const ctx = canvas.getContext("2d");
 const scoreField = document.querySelector(".scoreField");
+const highscoreField = document.querySelector(".highscoreField");
 const modal = document.querySelector(".modal");
 const restartBtn = document.querySelector(".btn");
 canvas.width = window.innerWidth;
@@ -9,6 +10,11 @@ let score = 0;
 let lives = 3;
 let platformScrollVelocity = 0.5;
 let playerScrollVelocity = 0.00007;
+
+//Setting up localstorage
+if (localStorage.getItem("highscore") == null) {
+  localStorage.setItem("highscore", 0);
+}
 
 //Drawing spike on top
 const spike_image = new Image();
@@ -57,13 +63,6 @@ class Player {
   }
 
   update() {
-    // // Only if the bottom most point is less than canvas height we move the ball in y axis else we set y velocity to 0 (20 inside the if condition is the radius of ball)
-    // if (this.position.y + 20 + this.velocity.y <= canvas.height) {
-    //   this.position.y += this.velocity.y;
-    //   this.velocity.y += gravity;
-    // } else {
-    //   this.velocity.y = 0;
-    // }
     this.position.y += this.velocity.y;
     this.velocity.y += gravity;
     // Blocking right and left sides
@@ -106,6 +105,7 @@ const platforms = [
 let y_coord = 400; // To make sure that the platforms are generated one below the other
 let x_coord = 0;
 let flag = 0;
+// flag is to alternatively place platforms on the left half and right half of the canvas
 for (let i = 0; i < 10000; i++) {
   if (flag == 0) {
     x_coord = Math.floor((Math.random() * canvas.width) / 2);
@@ -117,7 +117,7 @@ for (let i = 0; i < 10000; i++) {
     flag = 0;
   }
   platforms.push(new Platform(x_coord, y_coord));
-  y_coord += 50;
+  y_coord += 100;
 }
 const animate = () => {
   requestAnimationFrame(animate);
@@ -144,6 +144,10 @@ const animate = () => {
     console.log(lives);
     if (lives == 0) {
       stopGame();
+      if (localStorage.getItem("highscore") < score) {
+        localStorage.setItem("highscore", score);
+      }
+      highscoreField.textContent = localStorage.getItem("highscore");
     }
   }
 
