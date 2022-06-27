@@ -48,3 +48,12 @@ canvas {
   border: none;
   cursor: pointer;
 }
+
+body > h1 {
+  color: white;
+  background: transparent;
+  position: absolute;
+  top: 0;
+  left: 0;
+  padding: 1rem 0 0 1rem;
+}

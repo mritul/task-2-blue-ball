@@ -1,6 +1,7 @@
 const canvas = document.querySelector("canvas");
 const ctx = canvas.getContext("2d");
 const scoreField = document.querySelector(".scoreField");
+const livesField = document.querySelector(".livesField");
 const highscoreField = document.querySelector(".highscoreField");
 const modal = document.querySelector(".modal");
 const restartBtn = document.querySelector(".btn");
@@ -19,10 +20,13 @@ if (localStorage.getItem("highscore") == null) {
 //Drawing spike on top
 const spike_image = new Image();
 spike_image.src = "./spikes.svg";
-// ctx.drawImage(spike_image, 0, 0);
 document.body.appendChild(spike_image);
 spike_image.width = canvas.width;
 
+//Placing lives text on top left
+ctx.font = "30px Arial";
+ctx.fillStyle = "red";
+ctx.fillText(`Lives: ${lives}`, 20, 100);
 //Adding gravity
 const gravity = 0.1;
 
@@ -98,7 +102,6 @@ class Platform {
 
 const player = new Player();
 const platforms = [
-  // new Platform(100, 1000),
   new Platform(canvas.width / 2, canvas.height / 2), // This platform is the one for starting on which the ball lands at start
 ];
 // Generating platforms
@@ -117,7 +120,13 @@ for (let i = 0; i < 10000; i++) {
     flag = 0;
   }
   platforms.push(new Platform(x_coord, y_coord));
-  y_coord += 100;
+  // Spawning healthpacks every 20 platforms
+  if (i % 1 == 0) {
+    ctx.font = "Arial 30px";
+    ctx.fillStyle = "green";
+    ctx.fillText("+", 10, 10);
+  }
+  y_coord += 100; // So that next platform is placed below the previous one
 }
 const animate = () => {
   requestAnimationFrame(animate);
@@ -131,7 +140,7 @@ const animate = () => {
     player.velocity.x += 0.05;
     player.position.x -= player.velocity.x;
   } else if (keys.up.pressed) {
-    player.velocity.y = -10;
+    player.velocity.y = -5;
   }
 
   //Checking for loss by spike hit/ falling down
@@ -141,7 +150,12 @@ const animate = () => {
   ) {
     console.log("You Lose");
     lives -= 1;
-    console.log(lives);
+    livesField.textContent = lives;
+    // After one life is gone the ball is respawned. The conditions are the same as the beginning of the game(i.e A platform at canvas.width/2,canvas.height/2 and ball on top of it)
+    // Refer platforms array and position object in player class for the coordinates
+    player.position.y = canvas.height / 2 - 30;
+    player.position.x = canvas.width / 2 + 30;
+    platforms.push(new Platform(canvas.width / 2, canvas.height / 2));
     if (lives == 0) {
       stopGame();
       if (localStorage.getItem("highscore") < score) {
