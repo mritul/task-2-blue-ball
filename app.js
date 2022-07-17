@@ -9,8 +9,7 @@ canvas.width = window.innerWidth;
 canvas.height = window.innerHeight;
 let score = 0;
 let lives = 3;
-let platformScrollVelocity = 0.5;
-let playerScrollVelocity = 0.00007;
+let scrollVelocity = 0.7;
 
 //Setting up localstorage
 if (localStorage.getItem("highscore") == null) {
@@ -23,10 +22,6 @@ spike_image.src = "./spikes.svg";
 document.body.appendChild(spike_image);
 spike_image.width = canvas.width;
 
-//Placing lives text on top left
-ctx.font = "30px Arial";
-ctx.fillStyle = "red";
-ctx.fillText(`Lives: ${lives}`, 20, 100);
 //Adding gravity
 const gravity = 0.1;
 
@@ -50,9 +45,9 @@ const keys = {
 class Player {
   constructor() {
     this.position = {
-      x: canvas.width / 2 + 30,
-      y: canvas.height / 2 - 30,
-    };
+      x: canvas.width / 2 + 20,
+      y: canvas.height / 2 - 20,
+    }; // The +- 20 are for centering the ball on platform on initial spawn
     this.velocity = {
       x: 0,
       y: 0,
@@ -91,12 +86,30 @@ class Platform {
     if (screen.width <= 320) {
       this.width = 100;
     }
+    this.color = "red";
   }
 
   draw() {
-    ctx.fillStyle = "red";
+    ctx.fillStyle = this.color;
     ctx.beginPath();
     ctx.fillRect(this.position.x, this.position.y, this.width, this.height);
+  }
+}
+
+//Powerup class
+class Healthpack {
+  constructor(pos_x, pos_y) {
+    this.position = {
+      x: pos_x,
+      y: pos_y,
+    };
+  }
+
+  draw() {
+    ctx.fillStyle = "green";
+    ctx.beginPath();
+    ctx.arc(this.position.x, this.position.y, 20, 0, Math.PI * 2);
+    ctx.fill();
   }
 }
 
@@ -104,6 +117,7 @@ const player = new Player();
 const platforms = [
   new Platform(canvas.width / 2, canvas.height / 2), // This platform is the one for starting on which the ball lands at start
 ];
+const healthpacks = [];
 // Generating platforms
 let y_coord = 400; // To make sure that the platforms are generated one below the other
 let x_coord = 0;
@@ -121,10 +135,8 @@ for (let i = 0; i < 10000; i++) {
   }
   platforms.push(new Platform(x_coord, y_coord));
   // Spawning healthpacks every 20 platforms
-  if (i % 1 == 0) {
-    ctx.font = "Arial 30px";
-    ctx.fillStyle = "green";
-    ctx.fillText("+", 10, 10);
+  if (i % 20 == 0) {
+    healthpacks.push(new Healthpack(x_coord + 50, y_coord - 20));
   }
   y_coord += 100; // So that next platform is placed below the previous one
 }
@@ -184,9 +196,37 @@ const animate = () => {
     }
 
     // Adding scroller to game. The platforms and ball moves up
-    platform.position.y -= platformScrollVelocity;
-    player.position.y -= playerScrollVelocity; // Got by hit and trial for ball such that it does not fall of the platform
+    platform.position.y -= scrollVelocity;
   });
+  player.position.y -= scrollVelocity;
+
+  for (let i = 0; i < healthpacks.length; i++) {
+    healthpacks[i].draw();
+    healthpacks[i].position.y -= scrollVelocity;
+    //Checking if healthpacks[i] is collected
+    // On horizontal boundaries
+    //We execute the border conditions on x axis only when the y coordinates of both healthpacks[i] ball and player ball are same
+    if (Math.ceil(healthpacks[i].position.y) == Math.ceil(player.position.y)) {
+      //Condition to see if ends of player ball meets ends of health ball
+      // We use simple rule of math that if distance between centers is less than or equal to sum of radii, that means the balls have touched
+      if (Math.abs(player.position.x - healthpacks[i].position.x) <= 40) {
+        //Removing the healthpack from array and increasing life by 1
+        healthpacks.splice(i, 1);
+        lives += 1;
+        livesField.innerHTML = lives;
+      }
+    }
+    // //On vertical boundaries
+    // //We execute the border conditions on y axis only when the x coordinates of both healthpacks[i] ball and player ball are same
+    if (Math.ceil(healthpacks[i].position.x) == Math.ceil(player.position.x)) {
+      if (Math.abs(healthpacks[i].position.y - player.position.y) <= 40) {
+        //Removing the healthpack from array and increasing life by 1
+        healthpacks.splice(i, 1);
+        lives += 1;
+        livesField.innerHTML = lives;
+      }
+    }
+  }
 };
 animate();
 
@@ -231,11 +271,16 @@ const interval_id = setInterval(updateScore, 1000);
 const stopGame = () => {
   modal.style.display = "flex";
   clearInterval(interval_id); // So that score stops adding up
-  platformScrollVelocity = 0;
-  playerScrollVelocity = 0;
+  scrollVelocity = 0;
 };
 
 //Giving play again button functionality
 restartBtn.addEventListener("click", () => {
   location.reload();
+});
+//Nice way to debug inside an animation frame (infinite console logs cause heavy load on the process)
+window.addEventListener("keypress", (e) => {
+  if (e.key == "w") {
+    console.log(player.position.y, healthpacks[0].position.y);
+  }
 });
