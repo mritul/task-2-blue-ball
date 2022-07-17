@@ -11,6 +11,10 @@ let score = 0;
 let lives = 3;
 let scrollVelocity = 0.7;
 
+//Image
+let img = new Image();
+img.src = "./medkit.png";
+
 //Setting up localstorage
 if (localStorage.getItem("highscore") == null) {
   localStorage.setItem("highscore", 0);
@@ -106,10 +110,8 @@ class Healthpack {
   }
 
   draw() {
-    ctx.fillStyle = "green";
-    ctx.beginPath();
-    ctx.arc(this.position.x, this.position.y, 20, 0, Math.PI * 2);
-    ctx.fill();
+    //Drawing an image as a healthpack
+    ctx.drawImage(img, this.position.x, this.position.y, 20, 20);
   }
 }
 

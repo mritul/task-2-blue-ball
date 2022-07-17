@@ -15,3 +15,4 @@
    - Now, for collision detection of packs with the player ball, use simple math:
    - First see in horizontal axis... If y coordinates of the centers of healthpack and ball are same, start checking for collisions on the horizontal ends of the ball and if x coordinates of the centers of the balls are equal, then start checking for collisions on the y axis
    - To check for collision, use the mathematical fact that if the absolute distance between centers of two circles is less than the sum of radii of the two circles, that means they have collided. - So, immediately increase the lives by 1, remove the healthpack that has collided from the healthpacks array and then change innerHTML of the lives text.
+9. Finally replace the circle we draw as ctx.draw() with draw Image and give it a width and height equals the radius of circle we used before(20). It will work the same in the end(collision detection,etc)
