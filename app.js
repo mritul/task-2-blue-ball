@@ -15,6 +15,11 @@ let scrollVelocity = 0.7;
 let img = new Image();
 img.src = "./medkit.png";
 
+//Audios
+let spikeAudio = new Audio("./spike-sound.mp3");
+spikeAudio.playbackRate = "6";
+let healthpackAudio = new Audio("./healthpack-sound.mp3");
+
 //Setting up localstorage
 if (localStorage.getItem("highscore") == null) {
   localStorage.setItem("highscore", 0);
@@ -163,6 +168,21 @@ const animate = () => {
     player.position.y + 20 >= screen.height // We cannot use canvas.height as we have generated platforms for a long height
   ) {
     console.log("You Lose");
+
+    // Audio playing doesn't work directly (got solution from stackoverflow)
+    var resp = spikeAudio.play();
+
+    if (resp !== undefined) {
+      resp
+        .then((_) => {
+          // autoplay starts!
+        })
+        .catch((error) => {
+          //show error
+        });
+    }
+    //Stackoverflow solution for playing audio ends
+
     lives -= 1;
     livesField.textContent = lives;
     // After one life is gone the ball is respawned. The conditions are the same as the beginning of the game(i.e A platform at canvas.width/2,canvas.height/2 and ball on top of it)
@@ -212,8 +232,21 @@ const animate = () => {
       //Condition to see if ends of player ball meets ends of health ball
       // We use simple rule of math that if distance between centers is less than or equal to sum of radii, that means the balls have touched
       if (Math.abs(player.position.x - healthpacks[i].position.x) <= 40) {
-        //Removing the healthpack from array and increasing life by 1
+        //Removing the healthpack from array(so that the healthpack disappears) and increasing life by 1
         healthpacks.splice(i, 1);
+        // Audio playing doesn't work directly (got solution from stackoverflow)
+        var resp = healthpackAudio.play();
+
+        if (resp !== undefined) {
+          resp
+            .then((_) => {
+              // autoplay starts!
+            })
+            .catch((error) => {
+              //show error
+            });
+        }
+        //Stackoverflow solution for playing audio ends
         lives += 1;
         livesField.innerHTML = lives;
       }
@@ -222,8 +255,21 @@ const animate = () => {
     // //We execute the border conditions on y axis only when the x coordinates of both healthpacks[i] ball and player ball are same
     if (Math.ceil(healthpacks[i].position.x) == Math.ceil(player.position.x)) {
       if (Math.abs(healthpacks[i].position.y - player.position.y) <= 40) {
-        //Removing the healthpack from array and increasing life by 1
+        //Removing the healthpack from array(so that it disappears) and increasing life by 1
         healthpacks.splice(i, 1);
+        // Audio playing doesn't work directly on doing audio.play()(got solution from stackoverflow)
+        var resp = healthpackAudio.play();
+
+        if (resp !== undefined) {
+          resp
+            .then((_) => {
+              // autoplay starts!
+            })
+            .catch((error) => {
+              //show error
+            });
+        }
+        //Stackoverflow solution for playing audio ends
         lives += 1;
         livesField.innerHTML = lives;
       }
