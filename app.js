@@ -32,7 +32,7 @@ document.body.appendChild(spike_image);
 spike_image.width = canvas.width;
 
 //Adding gravity
-const gravity = 0.1;
+const gravity = 0.5;
 
 //Global object to capture keypresses
 const keys = {
@@ -153,13 +153,13 @@ const animate = () => {
   player.update();
   // We get keypressed state from global object that is updated through eventListener for the 4 keys and update the position of ball here
   if (keys.right.pressed) {
-    player.velocity.x += 0.05; //For constant velocity just put velcity.x = 0.01
+    player.velocity.x += 0.2; //For constant velocity just put velcity.x = 0.01
     player.position.x += player.velocity.x;
   } else if (keys.left.pressed) {
-    player.velocity.x += 0.05;
+    player.velocity.x += 0.2;
     player.position.x -= player.velocity.x;
   } else if (keys.up.pressed) {
-    player.velocity.y = -5;
+    player.velocity.y = -10;
   }
 
   //Checking for loss by spike hit/ falling down
